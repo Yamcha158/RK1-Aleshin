@@ -169,3 +169,134 @@ void randFill(float* ar, int N) {
         ar[i] = rand() / float(RAND_MAX) * 24.f + 1.f;
     }
 }
+
+LinkedList::LinkedList() {
+    Head = nullptr;
+    Tail = nullptr;
+}
+
+LinkedList::~LinkedList() {
+    while (Head != nullptr) {
+        Node* a = Head;
+        Head = Head->next;
+        delete a;
+    }
+}
+
+void LinkedList::push_back(int nameNode) {
+    Node* Element = new Node;
+    if (Head == nullptr) {
+        Element->nameNode = nameNode + 1;
+        Element->next = nullptr;
+        Element->prev = nullptr;
+        Head = Tail = Element;
+    }
+    else {
+        Element->next = nullptr;
+        Element->nameNode = nameNode + 1;
+        Element->prev = Tail;
+        Tail->next = Element;
+        Tail = Element;
+    }
+    Node::countNodes++;
+}
+
+void LinkedList::writeToFileFromTail() {
+    FILE* pFile = fopen("ListFromTail.txt", "w");
+    Node* a = Tail;
+    while (a != nullptr) {
+        fprintf(pFile, "%d%c%s", a->nameNode, ';', " ");
+        a = a->prev;
+    }
+    fclose(pFile);
+}
+
+void LinkedList::writeToFileFromHead() {
+    FILE* pFile = fopen("ListFromHead.txt", "w");
+    Node* a = Head;
+    while (a != nullptr) {
+        fprintf(pFile, "%d%c%s", a->nameNode, ';', " ");
+        a = a->next;
+    }
+    fclose(pFile);
+}
+
+void LinkedList::insert(int nameNode, int position) {
+    if (position >= 0 && position < Node::countNodes + 1) {
+        Node* Element = new Node;
+        Element->nameNode = nameNode;
+        if (position == 0) {
+            Element->next = Head;
+            Element->prev = nullptr;
+            Head->prev = Element;
+            Head = Element;
+        }
+        else {
+            Node* a = Head;
+            for (int i = 0; i < position - 1; ++i) {
+                a = a->next;
+            }
+            Element->next = a->next;
+            Element->prev = a;
+            a->next = Element;
+            if (position != Node::countNodes)
+                Element->next->prev = Element;
+            else
+                Tail = Element;
+        }
+        Node::countNodes++;
+    }
+}
+
+float StudentInfo::getAverMark(const std::string& subjName) {
+    float sum = 0;
+    for (auto ne = subjMark.find(subjName)->second.first.begin(); ne != subjMark.find(subjName)->second.first.end(); ne++) {
+        sum += *ne;
+    }
+    float averageS = sum / subjMark.find(subjName)->second.first.size();
+    return averageS;
+}
+
+int StudentInfo::addMark(const std::string& subjName, int mark) {
+    if (subjMark.find(subjName) == subjMark.end())
+        return 1;
+    subjMark.find(subjName)->second.first.push_back(mark);
+    subjMark.find(subjName)->second.second = getAverMark(subjName);
+    return  0;
+}
+
+int StudentInfo::addSubj(const std::string& subjName) {
+    if (subjMark.find(subjName) != subjMark.end())
+        return 1;
+    std::list<int> ls;
+    float averS = 0;
+    std::pair<std::list<int>, float> pair;
+    pair.first = ls;
+    pair.second = averS;
+    subjMark.emplace(subjName, pair);
+    return 0;
+}
+
+void StudentInfo::printInfoStudent(bool writeFile) {
+    if (!writeFile) {
+        FILE* pFile = fopen("Student.txt", "w");
+        std::string n = std::get<0>(info);
+        std::string n1 = std::get<1>(info);
+        std::string n2 = std::get<2>(info);
+        fprintf(pFile, "%s\t%s%c%s\n", n.c_str(), n1.c_str(), ':', n2.c_str());
+        for (auto ne = subjMark.begin(); ne != subjMark.end(); ne++) {
+            fprintf(pFile, "%s%s", ne->first.c_str(), " :\t");
+            for (auto ne1 = ne->second.first.begin(); ne1 != ne->second.first.end(); ne1++) {
+                fprintf(pFile, "%d%s", *ne1, ", ");
+            }
+            fprintf(pFile, "%s%f\n", " -- ", ne->second.second);
+        }
+        fclose(pFile);
+    }
+}
+
+void StudentInfo::writeAllInfoToFile() {
+    std::ofstream out("AllInfo.txt", std::ios::binary);
+    out.write((char*)&info, sizeof(info));
+    out.close();
+}

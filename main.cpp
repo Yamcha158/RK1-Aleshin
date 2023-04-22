@@ -45,11 +45,36 @@ void task5() {
     fclose(pFile);
 }
 
+int Node::countNodes = 0;
+LinkedList lst;
+
+void task6() {
+    for (int i = 0; i < 4; ++i) {
+        lst.push_back(3 * i);
+    }
+    lst.writeToFileFromHead();
+    lst.writeToFileFromTail();
+}
+
+void task7() {
+    lst.insert(9, 4);
+}
+
+void task8() {
+    StudentInfo test;
+    test.addSubj("OP");
+    test.addMark("OP", 5);
+    test.writeAllInfoToFile();
+}
+
 int main() {
     task1();
     task2();
     task3();
     task4();
     task5();
+    task6();
+    task7();
+    task8();
     return 0;
 }
