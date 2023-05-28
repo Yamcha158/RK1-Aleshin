@@ -1,79 +1,99 @@
-#define _CRT_SECURE_NO_WARNINGS
-#define _USE_MATH_DEFINES
-#include <fstream>
-#include <iostream>
-#include <locale>
-#include <cmath>
-#include <iomanip>
-#include <cstring>
-#include <cctype>
-#include <vector>
-#include <bitset>
-#include <tuple>
-#include <map>
-#include <list>
-#include <iterator>
 #include "tasks_rk1.h"
 
-void task1() {
-    WorkWithFile a("sourceFile_task1.txt");
-    a.writeStatInfoToFile("result_sourceFile_task1.txt");
+void task_1() {
+    WorkWithFile p("sourceFile_task1.txt");
+    p.writeStatInfoToFile("result_sourceFile_task1.txt");
 }
 
-void task2() {
-    writeToFile("result_task2.txt", convertDecToBin(6));
+void task_2() {
+    char* ppp = new char[256] {"result_task2.txt\0"};
+    writeToFile(*ppp, convertDecToBin(16));
 }
 
-void task3() {
-    writeToFile("result_task3.txt", 0, convertBinToHex("101101101"), "101101101");
+void task_3() {
+    writeToFile("result_task3.txt", 0, convertBinToHex("0000000001001101"), "0000000001001101");
 }
 
-void task4() {
+void task_4() {
     buildTree(8);
 }
 
-void task5() {
-    float TwoDArray[4][4];
-    for (int i = 0; i < 4; ++i) {
-        randFill(TwoDArray[i], 4);
+void task_5() {
+    float Matrix[5][5];
+    for (int i = 0; i < 5; ++i) {
+        randFill(Matrix[i], 5);
     }
-    std::vector<std::pair<int, float>> vec = averStr2DArray(*TwoDArray, 4, 4);
+    std::vector<float> vec = averStr2DArray(*Matrix, 5, 5);
     FILE* pFile = fopen("result_task5.txt", "w");
-    for (auto i : vec)
-        fprintf(pFile, "%d\t%c\t%f\n", i.first, ':', i.second);
+    int v = 0;
+    for (auto i : vec) {
+        fprintf(pFile, "%d\t%c\t%f\n", v, ':', i);
+        v++;
+    }
     fclose(pFile);
 }
 
-int Node::countNodes = 0;
 LinkedList lst;
 
-void task6() {
-    for (int i = 0; i < 4; ++i) {
-        lst.push_back(3 * i);
+void task_6() {
+    for (int i = 0; i < 5; ++i) {
+        lst.push_back(2 * i);
     }
     lst.writeToFileFromHead();
     lst.writeToFileFromTail();
 }
 
-void task7() {
-    lst.insert(9, 4);
+void task_7() {
+    lst.insert(6, 1);
 }
 
-void task8() {
+void task_8() {
     StudentInfo test;
     test.addSubj("OP");
     test.addMark("OP", 5);
     test.writeAllInfoToFile();
 }
 
+void task_9() {
+    bool OK = brackets("(<<>{((hehe))}[<<<>{}>()>]>)");
+    if (OK)
+        std::cout << "OK";
+    else
+        std::cout << "BAD";
+}
+
+void task_10() {
+    bool OK = true;
+    RingedBuffer<int> Buf(5);
+    Buf.AddEl(67);
+    int buf;
+    Buf.GetEl(buf);
+    if (buf != 67)
+        OK = false;
+    for (int i = 0; i < 100; ++i) {
+        Buf.AddEl(i + 1);
+    }
+    for (int i = 0; i < 100; ++i) {
+        Buf.GetEl(buf);
+        if (buf != i + 1)
+            OK = false;
+    }
+    if (OK)
+        std::cout << std::endl << "RingedBuffer works properly";
+    else
+        std::cout << std::endl << "RingedBuffer does not work properly";
+}
+
 int main() {
-    task1();
-    task2();
-    task3();
-    task4();
-    task5();
-    task6();
-    task7();
-    task8();
+    task_1();
+    task_2();
+    task_3();
+    task_4();
+    task_5();
+    task_6();
+    task_7();
+    task_8();
+    task_9();
+    task_10();
     return 0;
 }

@@ -3,6 +3,8 @@
 #include <fstream>
 #include "tasks_rk1.h"
 
+int Node::countNodes = 0;
+
 char* NewChar(const char* s) {
     char* NString = new char[20];
     int chek = 0;
@@ -24,31 +26,40 @@ char* NewChar(const char* s) {
 }
 
 void WorkWithFile::readFromFile(const char* fileName) {
-    FILE* pFile;
-    pFile = fopen(fileName, "r");
-    fscanf(pFile, "%s", dataOfFile);
-    fclose(pFile);
+    std::ifstream inf(fileName);
+    std::string F0;
+    std::string F1;
+    while (std::getline(inf, F1))
+        F0 += F1;
+    inf.close();
+    for (int i = 0; i < F0.length(); ++i) {
+        dataOfFile[i] = F0[i];
+        dataOfFile[i + 1] = '\0';
+    }
 }
 
 void WorkWithFile::prepareTestFile(const char* fileName) {
     FILE* pFile;
     pFile = fopen(fileName, "w");
-    int val = 20;
+    int value = 20;
     int i;
     srand(time(nullptr));
-    char viewtxt;
-    for (i = 0; i < val; ++i)
+    char MS;
+    for (i = 0; i < value; ++i)
     {
-        viewtxt = (rand() % ('z' - 'a' + 1)) + 'a';
-        if (viewtxt < 'a') viewtxt = ' ';
-        fwrite(&viewtxt, 1, sizeof(viewtxt), pFile);
+        MS = (rand() % ('z' - 'a' + 1)) + 'a';
+        if (MS < 'a') MS = ' ';
+        fwrite(&MS, 1, sizeof(MS), pFile);
     }
     fclose(pFile);
 }
 
 WorkWithFile::WorkWithFile(const char* fileName) {
-    prepareTestFile(fileName);
     readFromFile(fileName);
+}
+
+WorkWithFile::WorkWithFile() {
+    prepareTestFile("sourceFile_task1.txt");
 }
 
 WorkWithFile::~WorkWithFile() {
@@ -56,79 +67,120 @@ WorkWithFile::~WorkWithFile() {
 }
 
 void WorkWithFile::writeStatInfoToFile(const char* outFile) {
-    char* Symbols = NewChar(dataOfFile);
-    int* CounterArray = new int[strlen(Symbols)];
-    for (int i = 0; i < strlen(Symbols); ++i) {
-        CounterArray[i] = 0;
+    char* Simbols = NewChar(dataOfFile);
+    int* CountArr = new int[strlen(Simbols)];
+    for (int i = 0; i < strlen(Simbols); ++i) {
+        CountArr[i] = 0;
     }
-    for (int i = 0; Symbols[i] != '\0'; ++i) {
+    for (int i = 0; Simbols[i] != '\0'; ++i) {
         for (int j = 0; j < strlen(dataOfFile); ++j) {
-            if (Symbols[i] == dataOfFile[j])
-                CounterArray[i]++;
+            if (Simbols[i] == dataOfFile[j])
+                CountArr[i]++;
         }
     }
     FILE* pFile = fopen(outFile, "w");
-    for (int i = 0; i < strlen(Symbols); ++i) {
-        fprintf(pFile, "%c\t%d\n", Symbols[i], CounterArray[i]);
+    for (int i = 0; i < strlen(Simbols); ++i) {
+        fprintf(pFile, "%c\t%d\n", Simbols[i], CountArr[i]);
     }
     fclose(pFile);
-    delete[] Symbols;
-    delete[] CounterArray;
+    delete[] Simbols;
+    delete[] CountArr;
+}
+
+void buildTree(int height) {
+    int chek = height - 1;
+    for (int j = 1; j <= height; j++) {
+        for (int i = chek--; i > 0; i--) {
+            std::cout << " ";
+        }
+        for (int i = 0; i < 2 * j - 1; ++i) {
+            std::cout << "*";
+        }
+        std::cout << std::endl;
+    }
 }
 
 char* convertDecToBin(int number) {
-	char* system = new char[33];
-	int count = 0;
-	for (int i = 32; number > 0; i--) {
-		system[i] = number % 2 + '0';
-		number /= 2;
-		count++;
-	}
-	char* Systema = new char[count];
-	int Index = 33 - count;
-	for (int i = 0; i < count; ++i) {
-		Systema[i] = system[Index++];
-		Systema[i + 1] = '\0';
-	}
-	delete[]system;
-	return Systema;
+    if (number != 0) {
+        int CoolNum = abs(number);
+        char* str = new char[33];
+        int chek = 0;
+        for (int i = 32; CoolNum > 0; i--) {
+            str[i] = CoolNum % 2 + '0';
+            CoolNum /= 2;
+            chek++;
+        }
+        char* CoolStr = new char[chek];
+        int Index = 33 - chek;
+        for (int i = 0; i < chek; ++i) {
+            if (i == 0 && number < 0) {
+                CoolStr[i] = '-';
+                chek++;
+                continue;
+            }
+            CoolStr[i] = str[Index++];
+            CoolStr[i + 1] = '\0';
+        }
+        delete[]str;
+        return CoolStr;
+    }
+    else {
+        char* str1 = new char[2];
+        str1[0] = '0';
+        str1[1] = '\0';
+        return str1;
+    }
 }
-void writeToFile(const char* fileName, const char* strNum) {
-    FILE* pFile = fopen(fileName, "w");
+
+void writeToFile(const char& fileName, const char* strNum) {
+    FILE* pFile = fopen(&fileName, "w");
     fprintf(pFile, "%s", strNum);
     fclose(pFile);
 }
 
 char* convertBinToHex(const char* binNum) {
-    int number = 0;
+    int num = 0;
     if ((int)(strlen(binNum)) % 4 != 0)
-        number = 4 - (int)(strlen(binNum)) % 4;
-    char* BinNum = new char[number + strlen(binNum) + 1];
-    std::map<std::string, char> gg{ {"0000", '0'}, {"0001", '1'}, {"0010", '2'}, {"0011", '3'}, {"0100", '4'}, {"0101", '5'},
-                              {"0110", '6'}, {"0111", '7'}, {"1000", '8'}, {"1001", '9'}, {"1010", 'A'}, {"1011", 'B'},
-                              {"1100", 'C'}, {"1101", 'D'}, {"1110", 'E'}, {"1111", 'F'} };
-    for (int i = 0; i < number; ++i) {
-        BinNum[i] = '0';
+        num = 4 - (int)(strlen(binNum)) % 4;
+    char* CoolBinNum = new char[num + strlen(binNum) + 1];
+    std::map<std::string, char> m{ {"0000", '0'}, {"0001", '1'}, {"0010", '2'},
+                              {"0011", '3'}, {"0100", '4'}, {"0101", '5'},
+                              {"0110", '6'}, {"0111", '7'}, {"1000", '8'},
+                              {"1001", '9'}, {"1010", 'A'}, {"1011", 'B'},
+                              {"1100", 'C'}, {"1101", 'D'}, {"1110", 'E'},
+                              {"1111", 'F'} };
+    for (int i = 0; i < num; ++i) {
+        CoolBinNum[i] = '0';
     }
-    for (int i = number; i < number + strlen(binNum) + 1; ++i) {
-        BinNum[i] = binNum[i - number];
-        BinNum[i + 1] = '\0';
+    for (int i = num; i < num + strlen(binNum) + 1; ++i) {
+        CoolBinNum[i] = binNum[i - num];
+        CoolBinNum[i + 1] = '\0';
     }
-    char* HexNum = new char[8];
+    char* hexNum = new char[8];
     int index = 0;
     int i = 0;
-    while (i < strlen(BinNum)) {
-        char* temp = new char[5];
+    while (i < strlen(CoolBinNum)) {
+        char* p = new char[5];
         for (int j = 0; j < 4; ++j) {
-            temp[j] = BinNum[i++];
-            temp[j + 1] = '\0';
+            p[j] = CoolBinNum[i++];
+            p[j + 1] = '\0';
         }
-        HexNum[index++] = gg.find(temp)->second;
-        delete[] temp;
+        hexNum[index++] = m.find(p)->second;
+        delete[] p;
     }
-    HexNum[index] = '\0';
-    delete[] BinNum;
-    return HexNum;
+    hexNum[index] = '\0';
+    delete[] CoolBinNum;
+    int chek = 0;
+    for (int j = 0; hexNum[j] == '0'; ++j) {
+        chek++;
+    }
+    for (int j = 0; j < chek; ++j) {
+        for (int k = 0; k < strlen(hexNum) - 1; ++k) {
+            std::swap(hexNum[k], hexNum[k + 1]);
+        }
+    }
+    hexNum[strlen(hexNum) - chek] = '\0';
+    return hexNum;
 }
 
 void writeToFile(const char* fileName, int writeAppend, const char* hexNum, const char* binNum) {
@@ -137,31 +189,17 @@ void writeToFile(const char* fileName, int writeAppend, const char* hexNum, cons
     fclose(pFile);
 }
 
-void buildTree(int height) {
-	int b = 1, d = height * 2;
-	for (int i = 0; i < height; i++) {
-		if (i > 0)
-			b = b + 2;
-		std::cout.width(d);
-		for (int j = 0; j < b; j++) {
-			std::cout << "*";
-		}
-		std::cout << std::endl;
-		--d;
-	}
-}
-
-std::vector<std::pair<int, float>> averStr2DArray(const float* ar, int colCount, int rowCount) {
-    std::vector<std::pair<int, float>> vector;
+std::vector<float> averStr2DArray(const float* ar, int colCount, int rowCount) {
+    std::vector<float> vr;
     for (int i = 0; i < rowCount; ++i) {
         float sum = 0;
         for (int j = 0; j < colCount; ++j) {
             sum += (*(ar + (i * colCount) + j));
         }
-        float avr = sum / colCount;
-        vector.emplace_back(i, avr);
+        float aver = sum / colCount;
+        vr.emplace_back(aver);
     }
-    return vector;
+    return vr;
 }
 
 void randFill(float* ar, int N) {
@@ -177,9 +215,9 @@ LinkedList::LinkedList() {
 
 LinkedList::~LinkedList() {
     while (Head != nullptr) {
-        Node* a = Head;
+        Node* p = Head;
         Head = Head->next;
-        delete a;
+        delete p;
     }
 }
 
@@ -203,20 +241,20 @@ void LinkedList::push_back(int nameNode) {
 
 void LinkedList::writeToFileFromTail() {
     FILE* pFile = fopen("ListFromTail.txt", "w");
-    Node* a = Tail;
-    while (a != nullptr) {
-        fprintf(pFile, "%d%c%s", a->nameNode, ';', " ");
-        a = a->prev;
+    Node* p = Tail;
+    while (p != nullptr) {
+        fprintf(pFile, "%d%c%s", p->nameNode, ';', " ");
+        p = p->prev;
     }
     fclose(pFile);
 }
 
 void LinkedList::writeToFileFromHead() {
     FILE* pFile = fopen("ListFromHead.txt", "w");
-    Node* a = Head;
-    while (a != nullptr) {
-        fprintf(pFile, "%d%c%s", a->nameNode, ';', " ");
-        a = a->next;
+    Node* p = Head;
+    while (p != nullptr) {
+        fprintf(pFile, "%d%c%s", p->nameNode, ';', " ");
+        p = p->next;
     }
     fclose(pFile);
 }
@@ -232,13 +270,13 @@ void LinkedList::insert(int nameNode, int position) {
             Head = Element;
         }
         else {
-            Node* a = Head;
+            Node* p = Head;
             for (int i = 0; i < position - 1; ++i) {
-                a = a->next;
+                p = p->next;
             }
-            Element->next = a->next;
-            Element->prev = a;
-            a->next = Element;
+            Element->next = p->next;
+            Element->prev = p;
+            p->next = Element;
             if (position != Node::countNodes)
                 Element->next->prev = Element;
             else
@@ -250,11 +288,11 @@ void LinkedList::insert(int nameNode, int position) {
 
 float StudentInfo::getAverMark(const std::string& subjName) {
     float sum = 0;
-    for (auto ne = subjMark.find(subjName)->second.first.begin(); ne != subjMark.find(subjName)->second.first.end(); ne++) {
-        sum += *ne;
+    for (auto it = subjMark.find(subjName)->second.first.begin(); it != subjMark.find(subjName)->second.first.end(); it++) {
+        sum += *it;
     }
-    float averageS = sum / subjMark.find(subjName)->second.first.size();
-    return averageS;
+    float aver = sum / subjMark.find(subjName)->second.first.size();
+    return aver;
 }
 
 int StudentInfo::addMark(const std::string& subjName, int mark) {
@@ -268,11 +306,11 @@ int StudentInfo::addMark(const std::string& subjName, int mark) {
 int StudentInfo::addSubj(const std::string& subjName) {
     if (subjMark.find(subjName) != subjMark.end())
         return 1;
-    std::list<int> ls;
-    float averS = 0;
+    std::list<int> lst;
+    float aver = 0;
     std::pair<std::list<int>, float> pair;
-    pair.first = ls;
-    pair.second = averS;
+    pair.first = lst;
+    pair.second = aver;
     subjMark.emplace(subjName, pair);
     return 0;
 }
@@ -280,16 +318,16 @@ int StudentInfo::addSubj(const std::string& subjName) {
 void StudentInfo::printInfoStudent(bool writeFile) {
     if (!writeFile) {
         FILE* pFile = fopen("Student.txt", "w");
-        std::string n = std::get<0>(info);
-        std::string n1 = std::get<1>(info);
-        std::string n2 = std::get<2>(info);
-        fprintf(pFile, "%s\t%s%c%s\n", n.c_str(), n1.c_str(), ':', n2.c_str());
-        for (auto ne = subjMark.begin(); ne != subjMark.end(); ne++) {
-            fprintf(pFile, "%s%s", ne->first.c_str(), " :\t");
-            for (auto ne1 = ne->second.first.begin(); ne1 != ne->second.first.end(); ne1++) {
-                fprintf(pFile, "%d%s", *ne1, ", ");
+        std::string z = std::get<0>(info);
+        std::string z1 = std::get<1>(info);
+        std::string z2 = std::get<2>(info);
+        fprintf(pFile, "%s\t%s%c%s\n", z.c_str(), z1.c_str(), ':', z2.c_str());
+        for (auto ite = subjMark.begin(); ite != subjMark.end(); ite++) {
+            fprintf(pFile, "%s%s", ite->first.c_str(), " :\t");
+            for (auto ite1 = ite->second.first.begin(); ite1 != ite->second.first.end(); ite1++) {
+                fprintf(pFile, "%d%s", *ite1, ", ");
             }
-            fprintf(pFile, "%s%f\n", " -- ", ne->second.second);
+            fprintf(pFile, "%s%f\n", " -- ", ite->second.second);
         }
         fclose(pFile);
     }
@@ -299,4 +337,37 @@ void StudentInfo::writeAllInfoToFile() {
     std::ofstream out("AllInfo.txt", std::ios::binary);
     out.write((char*)&info, sizeof(info));
     out.close();
+}
+
+bool brackets(const char* str) {
+    std::map<char, char> mp{ {'(', ')'},{'[',']'},{'<','>'}, {'{','}'} };
+    FILO Stack;
+    for (int i = 0; i < strlen(str); ++i) {
+        bool IsBrac = false;
+        for (auto ite = mp.begin(); ite != mp.end(); ite++) {
+            if (ite->first == str[i] || ite->second == str[i]) {
+                IsBrac = true;
+                break;
+            }
+        }
+        if (IsBrac) {
+            bool OpenBrac = false;
+            for (auto iter = mp.begin(); iter != mp.end(); iter++) {
+                if (iter->first == str[i]) {
+                    Stack.AddEl(str[i]);
+                    OpenBrac = true;
+                    break;
+                }
+            }
+            if (!OpenBrac) {
+                char buf;
+                Stack.GetEl(buf);
+                if (mp.find(buf)->second != str[i]) {
+                    Stack.AddEl(buf);
+                    Stack.AddEl(str[i]);
+                }
+            }
+        }
+    }
+    return Stack.IsEmpty();
 }

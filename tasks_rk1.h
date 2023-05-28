@@ -1,27 +1,20 @@
-#define _CRT_SECURE_NO_WARNINGS
-#define _USE_MATH_DEFINES
-#include <fstream>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
-#include <locale>
-#include <cmath>
-#include <iomanip>
 #include <cstring>
-#include <cctype>
-#include <vector>
-#include <tuple>
 #include <map>
-#include <list>
 #include <vector>
-#include <stdio.h>
-#include <string.h>
-#ifndef UNTITLED_TASKS_RK1_H
-#define UNTITLED_TASKS_RK1_H
+#include <list>
+
+#ifndef BMSTU_2023_TASKS_RK1_H
+#define BMSTU_2023_TASKS_RK1_H
 
 char* NewChar(const char* s);
 
 class WorkWithFile {
 private:
-    char* dataOfFile = new char[20];
+    char* dataOfFile = new char[256];
 
     void readFromFile(const char* fileName);
 
@@ -30,6 +23,8 @@ private:
 public:
     WorkWithFile(const char* fileName);
 
+    WorkWithFile();
+
     ~WorkWithFile();
 
     void writeStatInfoToFile(const char* outFile);
@@ -37,15 +32,15 @@ public:
 
 char* convertDecToBin(int number);
 
-void writeToFile(const char* fileName, const char* strNum);
+void writeToFile(const char& fileName, const char* strNum);
+
+void buildTree(int height);
 
 char* convertBinToHex(const char* binNum);
 
 void writeToFile(const char* fileName, int writeAppend, const char* hexNum, const char* binNum);
 
-void buildTree(int height);
-
-std::vector<std::pair<int, float>> averStr2DArray(const float* ar, int colCount, int rowCount);
+std::vector<float> averStr2DArray(const float* ar, int colCount, int rowCount);
 
 void randFill(float* ar, int N);
 
@@ -91,6 +86,7 @@ public:
         output		:	0 - предмет добавлен, 1 - такой предмет уже есть
         author		:
         date		:
+
     */
     int addSubj(const std::string& subjName);
     /*	desription	:	добавления нового предмета
@@ -118,5 +114,79 @@ public:
     */
     void writeAllInfoToFile();
 };
+
+bool brackets(const char* str);
+
+class FILO {
+private:
+    int DataLen;
+    int size;
+    char* ar;
+public:
+    FILO() {
+        size = 256;
+        ar = new char[size];
+        DataLen = 0;
+    }
+
+    int AddEl(char element) {
+        if (DataLen == size)
+            return -1;
+        ar[DataLen++] = element;
+        return 0;
+    }
+
+    int GetEl(char& element) {
+        if (DataLen == 0)
+            return -1;
+        element = ar[--DataLen];
+        return 0;
+    }
+
+    bool IsEmpty() {
+        return DataLen == 0;
+    }
+};
+
+template<typename T>
+class RingedBuffer {
+private:
+    int begin;
+    int end;
+    int DataLen;
+    int size;
+    T* ar;
+public:
+    RingedBuffer() {
+        begin = end = 0;
+        size = 256;
+        DataLen = 0;
+        ar = new T[size];
+    }
+    RingedBuffer(int FirstEl) {
+        size = 256;
+        DataLen = 0;
+        ar = new T[size];
+        begin = end = FirstEl;
+    }
+    int AddEl(T element) {
+        if (DataLen == size)
+            return -1;
+        ar[end] = element;
+        DataLen++;
+        end = (begin + DataLen) % size;
+        return 0;
+    }
+    int GetEl(T& element) {
+        if (DataLen == 0)
+            return -1;
+        element = ar[begin++];
+        begin = begin % size;
+        DataLen--;
+        return 0;
+    }
+};
+
+
 
 #endif
